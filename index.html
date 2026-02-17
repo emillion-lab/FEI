@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FEI Jumping Rules 2026 — Learning Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1a;
+  --bg2: #111827;
+  --bg3: #1a2332;
+  --card: #1e2a3a;
+  --card-hover: #243346;
+  --gold: #d4a853;
+  --gold-dim: #b8923f;
+  --green: #34d399;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --text: #e8edf5;
+  --text-dim: #8899aa;
+  --text-muted: #556677;
+  --border: #2a3a4a;
+  --accent-glow: rgba(212,168,83,0.15);
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+::selection { background: var(--gold); color: var(--bg); }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+/* HEADER — compact, collapsible on mobile */
+.header {
+  background: linear-gradient(135deg, var(--bg2) 0%, #1a1f35 50%, var(--bg2) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.header-top {
+  max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), #f0d78c);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px; white-space: nowrap;
+}
+.logo small { font-size: 0.5em; font-weight: 400; letter-spacing: 2px; display: block; opacity: 0.7; }
+.header-right { display: flex; align-items: center; gap: 6px; }
+.search-wrap {
+  position: relative; width: 140px;
+}
+.search-wrap input {
+  width: 100%; padding: 5px 8px 5px 26px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text);
+  font-size: 0.8rem; outline: none;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.search-wrap input:focus { border-color: var(--gold-dim); width: 180px; transition: width 0.3s; }
+.search-wrap::before {
+  content: '⌕'; position: absolute; left: 8px; top: 50%;
+  transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem;
+}
+.menu-toggle {
+  display: none; background: none; border: 1px solid var(--border);
+  color: var(--text-dim); font-size: 1.2rem; padding: 4px 8px;
+  border-radius: 6px; cursor: pointer;
+  font-family: 'Source Sans 3', sans-serif;
+}
+
+/* NAV TABS — horizontal scroll strip */
+.nav-strip {
+  max-width: 1400px; margin: 6px auto 0;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav-strip::-webkit-scrollbar { display: none; }
+.nav-tabs {
+  display: flex; gap: 2px; flex-wrap: nowrap; width: max-content;
+}
+.nav-tab {
+  padding: 5px 10px; border-radius: 6px;
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-dim); cursor: pointer;
+  font-size: 0.75rem; font-weight: 600;
+  transition: all 0.3s; white-space: nowrap;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.nav-tab:hover { color: var(--text); background: var(--bg3); }
+.nav-tab.active {
+  background: var(--accent-glow); border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* MAIN */
+.main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+/* PANELS */
+.panel { display: none; animation: fadeIn 0.4s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  margin-bottom: 16px; transition: all 0.3s;
+}
+.card:hover { border-color: var(--gold-dim); background: var(--card-hover); }
+.card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; color: var(--gold); margin-bottom: 12px;
+}
+.card p, .card li { color: var(--text); font-size: 0.95rem; }
+
+/* CHAPTER ACCORDION */
+.chapter-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; padding: 18px 24px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 8px;
+  transition: all 0.3s;
+}
+.chapter-header:hover { border-color: var(--gold-dim); background: var(--card-hover); }
+.chapter-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; color: var(--gold);
+}
+.chapter-header .badge {
+  background: var(--bg3); padding: 4px 12px; border-radius: 20px;
+  font-size: 0.75rem; color: var(--text-dim);
+}
+.chapter-header .arrow {
+  transition: transform 0.3s; font-size: 1.2rem; color: var(--text-muted);
+}
+.chapter-header.open .arrow { transform: rotate(180deg); }
+.chapter-body {
+  max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+  padding: 0 24px;
+}
+.chapter-body.open { max-height: 30000px; padding: 16px 24px; }
+
+/* ARTICLE */
+.article {
+  background: var(--bg3); border-left: 3px solid var(--gold-dim);
+  padding: 16px 20px; margin-bottom: 12px; border-radius: 0 8px 8px 0;
+  cursor: pointer; transition: all 0.2s;
+}
+.article:hover { background: var(--card-hover); border-left-color: var(--gold); }
+.article h4 { font-size: 0.95rem; color: var(--blue); margin-bottom: 6px; }
+.article .detail { font-size: 0.88rem; color: var(--text-dim); line-height: 1.6; }
+.article .key-point {
+  display: inline-block; background: rgba(212,168,83,0.1);
+  border: 1px solid rgba(212,168,83,0.2);
+  padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;
+  color: var(--gold); margin: 4px 4px 0 0;
+}
+
+/* MNEMONIC */
+.mnemonic {
+  background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(96,165,250,0.1));
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: 8px; padding: 14px 18px; margin-top: 10px;
+}
+.mnemonic-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--purple); margin-bottom: 4px; font-weight: 700;
+}
+.mnemonic-text { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text); }
+
+/* QUIZ */
+.quiz-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+}
+.quiz-card .q-number {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--gold); margin-bottom: 10px;
+}
+.quiz-card .q-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; margin-bottom: 20px; line-height: 1.5;
+}
+.quiz-option {
+  display: block; width: 100%; text-align: left;
+  padding: 14px 18px; margin-bottom: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 0.95rem;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'Source Sans 3', sans-serif;
+}
+.quiz-option:hover { border-color: var(--blue); background: var(--card-hover); }
+.quiz-option.correct { border-color: var(--green); background: rgba(52,211,153,0.15); color: var(--green); }
+.quiz-option.wrong { border-color: var(--red); background: rgba(248,113,113,0.1); color: var(--red); }
+.quiz-option.disabled { pointer-events: none; opacity: 0.6; }
+.quiz-explanation {
+  margin-top: 14px; padding: 14px 18px;
+  background: rgba(96,165,250,0.08); border-left: 3px solid var(--blue);
+  border-radius: 0 8px 8px 0; font-size: 0.9rem; display: none;
+}
+
+/* FLASHCARD */
+.flashcard-container { perspective: 1200px; margin-bottom: 20px; }
+.flashcard {
+  width: 100%; min-height: 280px;
+  position: relative; cursor: pointer;
+  transform-style: preserve-3d; transition: transform 0.6s;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; width: 100%; min-height: 280px;
+  backface-visibility: hidden; border-radius: var(--radius);
+  padding: 32px; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; text-align: center;
+}
+.flashcard-front {
+  background: linear-gradient(135deg, var(--card), var(--bg3));
+  border: 1px solid var(--gold-dim);
+}
+.flashcard-back {
+  background: linear-gradient(135deg, #1a2a1a, #1a2a2a);
+  border: 1px solid var(--green);
+  transform: rotateY(180deg);
+}
+.flashcard-front h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; color: var(--gold); margin-bottom: 16px;
+}
+.flashcard-front p { color: var(--text-dim); font-size: 0.9rem; }
+.flashcard-back p { color: var(--text); font-size: 1rem; line-height: 1.7; }
+
+/* PROGRESS */
+.progress-bar {
+  width: 100%; height: 6px; background: var(--bg3);
+  border-radius: 3px; overflow: hidden; margin: 16px 0;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--gold), #f0d78c);
+  border-radius: 3px; transition: width 0.5s ease;
+}
+
+/* STATS */
+.stats-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; text-align: center;
+}
+.stat-card .stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; color: var(--gold); font-weight: 900;
+}
+.stat-card .stat-label { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+
+/* PENALTY TABLE */
+.penalty-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  font-size: 0.9rem;
+}
+.penalty-table th {
+  background: var(--bg3); color: var(--gold);
+  padding: 12px 16px; text-align: left;
+  border-bottom: 2px solid var(--gold-dim);
+  font-family: 'Playfair Display', serif;
+}
+.penalty-table td {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+}
+.penalty-table tr:hover td { background: var(--card-hover); }
+.pen-4 { color: var(--gold); font-weight: 700; }
+.pen-elim { color: var(--red); font-weight: 700; }
+.pen-6s { color: var(--purple); font-weight: 700; }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+/* BUTTONS */
+.btn {
+  padding: 10px 24px; border-radius: 8px; border: none;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: #e0b560; transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--gold-dim); color: var(--gold); }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+/* TAGS */
+.tag {
+  display: inline-block; padding: 3px 10px; border-radius: 4px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.tag-table-a { background: rgba(96,165,250,0.15); color: var(--blue); }
+.tag-table-c { background: rgba(167,139,250,0.15); color: var(--purple); }
+.tag-elim { background: rgba(248,113,113,0.15); color: var(--red); }
+.tag-gold { background: rgba(212,168,83,0.15); color: var(--gold); }
+
+/* SPACED REP */
+.sr-controls {
+  display: flex; gap: 8px; margin-top: 16px; justify-content: center; flex-wrap: wrap;
+}
+.sr-btn {
+  padding: 10px 20px; border-radius: 8px; border: none;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.sr-again { background: var(--red); color: white; }
+.sr-hard { background: #f59e0b; color: var(--bg); }
+.sr-good { background: var(--green); color: var(--bg); }
+.sr-easy { background: var(--blue); color: white; }
+
+/* HIGHLIGHT SEARCH */
+mark {
+  background: rgba(212,168,83,0.4); color: var(--text);
+  padding: 1px 3px; border-radius: 2px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header { padding: 6px 10px; }
+  .logo { font-size: 0.9rem; }
+  .logo small { display: none; }
+  .search-wrap { width: 110px; }
+  .search-wrap input { font-size: 0.75rem; padding: 4px 6px 4px 24px; }
+  .nav-strip { margin-top: 4px; }
+  .nav-tab { padding: 4px 8px; font-size: 0.7rem; }
+  .main { padding: 12px; }
+  .header { padding: 8px 10px; }
+  .logo { font-size: 1rem; }
+  .logo small { font-size: 0.45em; }
+  .nav-tab { padding: 5px 10px; font-size: 0.72rem; }
+  .flashcard-face { padding: 18px; min-height: 220px; }
+  .main { padding: 10px; }
+  .card { padding: 16px; }
+  .section-title { font-size: 1.2rem; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-card .stat-num { font-size: 1.5rem; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .penalty-table { font-size: 0.78rem; }
+  .penalty-table th, .penalty-table td { padding: 7px 8px; }
+  .chapter-header { padding: 12px 14px; }
+  .chapter-header h2 { font-size: 0.95rem; }
+  .article { padding: 12px 14px; }
+  .quiz-card { padding: 18px; }
+  .quiz-card .q-text { font-size: 1rem; }
+  .sr-btn { padding: 8px 14px; font-size: 0.8rem; }
+}
+@media (max-width: 420px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-card { padding: 12px; }
+}
+
+/* TOOLTIP */
+.tip {
+  position: relative; cursor: help;
+  border-bottom: 1px dashed var(--gold-dim);
+}
+.tip:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: 100%; left: 50%;
+  transform: translateX(-50%); white-space: nowrap;
+  background: var(--bg); border: 1px solid var(--gold-dim);
+  padding: 6px 12px; border-radius: 6px;
+  font-size: 0.8rem; color: var(--gold);
+  z-index: 10;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; color: var(--gold);
+  margin-bottom: 20px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-subtitle {
+  font-size: 0.85rem; color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.chapter-tag {
+  display: inline-block; padding: 2px 10px; border-radius: 4px;
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; margin-right: 8px;
+  background: rgba(212,168,83,0.15); color: var(--gold);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">FEI JUMPING RULES<small>28th edition • 2026</small></div>
+    <div class="header-right">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search...">
+      </div>
+    </div>
+  </div>
+  <div class="nav-strip">
+    <nav class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-panel="overview">📋 Overview</button>
+      <button class="nav-tab" data-panel="chapters">📖 Rules</button>
+      <button class="nav-tab" data-panel="penalties">⚖️ Penalties</button>
+      <button class="nav-tab" data-panel="quiz">🧠 Quiz</button>
+      <button class="nav-tab" data-panel="flashcards">🃏 Cards</button>
+      <button class="nav-tab" data-panel="cheatsheet">📌 Reference</button>
+      <button class="nav-tab" data-panel="scenarios">🎯 Scenarios</button>
+    </nav>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ====== OVERVIEW PANEL ====== -->
+<div class="panel active" id="panel-overview">
+  <h1 class="section-title">📋 Complete Overview — FEI Jumping Rules 2026</h1>
+  <p class="section-subtitle">28th edition, effective 1 January 2026. Everything systematized for efficient learning.</p>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num">XIV</div><div class="stat-label">Chapters</div></div>
+    <div class="stat-card"><div class="stat-num">307</div><div class="stat-label">Articles (200-307)</div></div>
+    <div class="stat-card"><div class="stat-num">VIII</div><div class="stat-label">Annexes</div></div>
+    <div class="stat-card"><div class="stat-num">5★</div><div class="stat-label">Event levels</div></div>
+  </div>
+
+  <div class="card">
+    <h3>🏛️ Structure of the Rules</h3>
+    <p>Numbering is key: Articles <strong>1-99</strong> → FEI Statutes | <strong>100-199</strong> → General Regulations (GRs) | <strong>200-399</strong> → Jumping Rules (JRs) | <strong>1000-1099</strong> → Veterinary Regulations (VRs).</p>
+    <div class="mnemonic">
+      <div class="mnemonic-label">🧠 Numbering Mnemonic</div>
+      <div class="mnemonic-text">"1-99 = Statutes (foundation), 100 = General, 200 = Jumping, 1000 = Vet" → <strong>S-G-J-V</strong></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>📅 Event Categories</h3>
+      <p><strong>CSI</strong> = International (individual)<br>
+      <strong>CSIO</strong> = Official International (nations/teams)<br>
+      <strong>1★ to 5★</strong> = Level (5★ = highest)<br>
+      <strong>-W</strong> suffix = World Cup Event</p>
+      <div class="mnemonic">
+        <div class="mnemonic-label">🧠 Remember</div>
+        <div class="mnemonic-text">CSI = "Come Solo" (Individual)<br>CSIO = "Come Solo + Official" (+ Nations)</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🐴 Horse Age Requirements</h3>
+      <p><strong>9 yrs</strong> → Olympics, Worlds, WC Final<br>
+      <strong>8 yrs</strong> → Continental Games/Championships<br>
+      <strong>7 yrs</strong> → CSI/CSIO 3★-5★, World Cup<br>
+      <strong>6 yrs</strong> → CSI/CSIO 1★-2★ (if < 1.40m)</p>
+      <div class="mnemonic">
+        <div class="mnemonic-label">🧠 Rule</div>
+        <div class="mnemonic-text">Higher ★ → Older horse. "9-8-7-6" = Olympics-Continental-High★-Low★</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>🧑 Athlete Age Categories</h3>
+      <p><strong>Seniors</strong>: 17+ (restrictions until 18)<br>
+      <strong>U25</strong>: 16-25 years<br>
+      <strong>Young Rider</strong>: 16-21 years<br>
+      <strong>Junior</strong>: 14-18 years<br>
+      <strong>Children</strong>: 12-14 years<br>
+      <strong>Pony Rider</strong>: 12-16 years<br>
+      <strong>Veteran</strong>: 45+ years<br>
+      <strong>Amateur</strong>: 14+ (with licence)</p>
+    </div>
+    <div class="card">
+      <h3>🏗️ Key Change 2026</h3>
+      <p>All <strong>tack, equipment, and artificial aids</strong> rules will be placed in a separate standalone document.</p>
+      <p style="color:var(--gold);margin-top:8px;">⚠️ New requirements: planned for <strong>1 January 2027</strong>. Current rules (Annex VIII) remain in force during the 2026 transitional period.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⭐ Code of Conduct — Horse Welfare</h3>
+    <p>FEI requires that Horse welfare must <strong>always be paramount</strong>. Welfare must never be subordinated to competitive or commercial influences. Five key areas:</p>
+    <p>1. <strong>General Welfare</strong> (feeding, training, transport) → 2. <strong>Fitness to Compete</strong> (health, doping, pregnant mares) → 3. <strong>Events must not prejudice welfare</strong> (ground, extreme weather) → 4. <strong>Humane Treatment</strong> (veterinary care, euthanasia) → 5. <strong>Education</strong></p>
+  </div>
+</div>
+
+<!-- ====== CHAPTERS PANEL ====== -->
+<div class="panel" id="panel-chapters">
+  <h1 class="section-title">📖 Rules по глави</h1>
+  <p class="section-subtitle">Click a chapter to expand. Every key point is explained.</p>
+  <div id="chaptersContainer"></div>
+</div>
+
+<!-- ====== PENALTIES PANEL ====== -->
+<div class="panel" id="panel-penalties">
+  <h1 class="section-title">⚖️ Penalty System — Complete Reference</h1>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Table A — Penalty Points</h3>
+      <table class="penalty-table">
+        <tr><th>Fault</th><th>Penalty</th></tr>
+        <tr><td>First Disobedience (refusal/run-out)</td><td class="pen-4">4 Penalties</td></tr>
+        <tr><td>Obstacle knocked down</td><td class="pen-4">4 Penalties</td></tr>
+        <tr><td>Fault at Water Jump</td><td class="pen-4">4 Penalties</td></tr>
+        <tr><td>Exceeding time allowed</td><td class="pen-4">1 Penalty per second commenced</td></tr>
+        <tr><td>Fall of Horse and/or Athlete</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Second Disobedience</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Exceeding maximum time limit</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Uncorrected deviation from course</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Unauthorised assistance</td><td class="pen-elim">ELIMINATION</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Table C — Time Penalties</h3>
+      <table class="penalty-table">
+        <tr><th>Fault</th><th>Penalty</th></tr>
+        <tr><td>Obstacle knocked down (outdoor)</td><td class="pen-4">+4 seconds</td></tr>
+        <tr><td>Obstacle knocked down (indoor)</td><td class="pen-6s">+3 seconds</td></tr>
+        <tr><td>2nd phase / jump-off (outdoor)</td><td class="pen-6s">+3 seconds</td></tr>
+        <tr><td>First Disobedience</td><td style="color:var(--green);">No penalty</td></tr>
+        <tr><td>First Disobedience + съборена пречка</td><td class="pen-6s">+6 seconds</td></tr>
+        <tr><td>Second Disobedience</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Fall</td><td class="pen-elim">ELIMINATION</td></tr>
+        <tr><td>Max limit: ≥600m = 3 min; <600m = 2 min</td><td class="pen-elim">ELIMINATION при превишаване</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⏱️ Time Correction — 6 Seconds</h3>
+    <p>When a disobedience causes a knock down → bell rings → clock stops → obstacle rebuilt → bell rings → clock restarts when horse leaves the ground at the obstacle + <strong>6 seconds</strong> added to time.</p>
+    <div class="mnemonic">
+      <div class="mnemonic-label">🧠 Remember правилото за 6 секунди</div>
+      <div class="mnemonic-text">"KNOCK DOWN + REFUSAL = 6 sec correction. Just knock down = 4 penalties/seconds. Just refusal = 4 penalties (A) / 0 (C)"</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🚫 Elimination — Top Reasons (Art. 263.4)</h3>
+    <div class="grid-3">
+      <div><span class="tag tag-elim">ЕЛИМ</span> Fall на кон/ездач</div>
+      <div><span class="tag tag-elim">ЕЛИМ</span> Second Disobedience</div>
+      <div><span class="tag tag-elim">ELIM</span> Exceeding max time limit</div>
+      <div><span class="tag tag-elim">ELIM</span> Jumping before start</div>
+      <div><span class="tag tag-elim">ELIM</span> >45 sec between obstacles</div>
+      <div><span class="tag tag-elim">ELIM</span> Wrong obstacle order</div>
+      <div><span class="tag tag-elim">ELIM</span> Omitted obstacle</div>
+      <div><span class="tag tag-elim">ELIM</span> Jumping wrong obstacle</div>
+      <div><span class="tag tag-elim">ELIM</span> 45 sec continuous Resistance</div>
+      <div><span class="tag tag-elim">ELIM</span> Unauthorised assistance</div>
+      <div><span class="tag tag-elim">ELIM</span> Jumping without bell after interruption</div>
+      <div><span class="tag tag-elim">ELIM</span> Unfastened headgear + jump</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🩸 Blood on Horse — Jumping Recorded Warning (JRW)</h3>
+    <p>Any blood on Horse caused by tack/equipment or Athlete → <strong>JRW</strong>.<br>
+    Second JRW within 12 months → <strong>CHF 1,000 fine + 1 month suspension</strong>.<br>
+    Blood from biting tongue/nose: may be cleaned and continue (no JRW) if Horse is fit.</p>
+  </div>
+
+  <div class="card">
+    <h3>⏱️ Speeds by Category</h3>
+    <table class="penalty-table">
+      <tr><th>Category</th><th>Speed m/min</th></tr>
+      <tr><td>General (standard)</td><td>325-400</td></tr>
+      <tr><td>5★ Nations Cup / LoN (outdoor)</td><td>400</td></tr>
+      <tr><td>4★ Nations Cup (outdoor)</td><td>400</td></tr>
+      <tr><td>3★/2★ NC (outdoor)</td><td>375 / 375</td></tr>
+      <tr><td>1★ NC (outdoor) + всички indoor NC</td><td>350</td></tr>
+      <tr><td>Young Horses</td><td>325 мин.</td></tr>
+      <tr><td>Longines Ranking (≥1.45м, outdoor)</td><td>375-400</td></tr>
+      <tr><td>Power & Skill</td><td>Без мин. скорост</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ====== QUIZ PANEL ====== -->
+<div class="panel" id="panel-quiz">
+  <h1 class="section-title">🧠 Quiz за самопроверка</h1>
+  <p class="section-subtitle">Test your knowledge. Click an answer to see the explanation.</p>
+  <div class="progress-bar"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
+  <div id="quizScore" style="text-align:center;margin-bottom:16px;color:var(--gold);font-weight:700;"></div>
+  <div id="quizContainer"></div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn btn-gold" onclick="generateQuiz()">🔄 New Quiz (10 questions)</button>
+  </div>
+</div>
+
+<!-- ====== FLASHCARDS PANEL ====== -->
+<div class="panel" id="panel-flashcards">
+  <h1 class="section-title">🃏 Flashcards — Spaced Repetition</h1>
+  <p class="section-subtitle">Click the card to flip. Rate how well you knew the answer.</p>
+  <div style="text-align:center;margin-bottom:16px;">
+    <span id="fcCounter" style="color:var(--text-dim);"></span>
+    <div class="progress-bar"><div class="progress-fill" id="fcProgress" style="width:0%"></div></div>
+  </div>
+  <div class="flashcard-container">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="flashcard-face flashcard-front" id="fcFront">
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">QUESTION</p>
+        <h3 id="fcQuestion"></h3>
+        <p>Click to reveal answer</p>
+      </div>
+      <div class="flashcard-face flashcard-back" id="fcBack">
+        <p style="font-size:0.75rem;color:var(--green);margin-bottom:8px;">ANSWER</p>
+        <p id="fcAnswer"></p>
+      </div>
+    </div>
+  </div>
+  <div class="sr-controls">
+    <button class="sr-btn sr-again" onclick="rateCard(0)">❌ Again</button>
+    <button class="sr-btn sr-hard" onclick="rateCard(1)">😐 Hard</button>
+    <button class="sr-btn sr-good" onclick="rateCard(2)">👍 Good</button>
+    <button class="sr-btn sr-easy" onclick="rateCard(3)">⚡ Easy</button>
+  </div>
+  <div style="text-align:center;margin-top:16px;">
+    <button class="btn btn-outline btn-sm" onclick="resetFlashcards()">🔄 Reset</button>
+  </div>
+</div>
+
+<!-- ====== CHEATSHEET PANEL ====== -->
+<div class="panel" id="panel-cheatsheet">
+  <h1 class="section-title">📌 Cheatsheet — Quick Reference</h1>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>🐎 Max Horses per Athlete</h3>
+      <p><strong>CSI/CSIO</strong>: макс. 4 коня<br>
+      <strong>Grand Prix</strong>: 1 кон (2 при &lt;50% стартери в CSI1★-3★)<br>
+      <strong>Puissance/Six Bar/Derby</strong>: +1 допълнителен<br>
+      <strong>Young Horse отделен</strong>: +2 допълнителни<br>
+      <strong>Tours</strong>: до 4 в малък/среден/голям тур; 9 за CSIYH</p>
+    </div>
+    <div class="card">
+      <h3>🏗️ Obstacles — Dimensions</h3>
+      <p><strong>Макс. височина</strong>: 1.70м (outdoor), 1.65м (indoor)<br>
+      Изключение: Puissance / Six Bar<br>
+      <strong>Макс. ширина</strong>: 2.00м (triple bar: 2.20м)<br>
+      <strong>Воден скок</strong>: макс. 4.00м вкл. елемент за отблъскване<br>
+      <strong>+3 см правило</strong>: При ≥1.45м максимална височина може +3 см по усмотрение на Course Designer</p>
+    </div>
+    <div class="card">
+      <h3>🏟️ Arena — Dimensions</h3>
+      <p><strong>Вътрешна</strong>: мин. 1200м², мин. ширина 25м<br>
+      <strong>Външна</strong>: мин. 4000м², мин. ширина 50м<br>
+      <strong>Старт/финиш линии</strong>: 6-15м от 1-ва/последна пречка<br>
+      <strong>Флагове</strong>: Червен вдясно 🔴, Бял вляво ⚪</p>
+      <div class="mnemonic">
+        <div class="mnemonic-label">🧠 Remember флаговете</div>
+        <div class="mnemonic-text">"Red = Right" (both start with R). White = Left.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🔔 Bell — Functions</h3>
+      <p>1. Вход за инспекция на маршрута<br>
+      2. Сигнал за старт (45-сек обратно броене)<br>
+      3. Спиране/продължаване на ездач<br>
+      4. Пречката е възстановена<br>
+      5. Продължително звънене = ELIMINATION</p>
+    </div>
+    <div class="card">
+      <h3>🤼 Nations Cup — Key Points</h3>
+      <p><strong>Отбор</strong>: 4 ездачи (мин. 3)<br>
+      <strong>Кръгове</strong>: 2, същия маршрут, същия ден<br>
+      <strong>Класиране</strong>: сума на 3-те най-добри<br>
+      <strong>Мин. 3 нации</strong> за валидно NC<br>
+      <strong>Мин. 6 отбора</strong> (макс. 10) за 2-ри кръг<br>
+      <strong>Jump-off</strong>: 1 ездач на отбор при равенство за 1-во<br>
+      <strong>Елиминация на отбор</strong>: 2+ елиминирани (при 4 члена) или 1 (при 3 члена)</p>
+    </div>
+    <div class="card">
+      <h3>⏱️ The 45-Second Rule</h3>
+      <p>Ездачът има 45 секунди след камбаната за:<br>
+      • Първата пречка → ЕЛИМ ако не скочи<br>
+      • Между всяка следваща пречка → ЕЛИМ<br>
+      • Последна пречка до финиш → ЕЛИМ<br>
+      • Съпротива (Resistance) 45 сек. → ЕЛИМ<br>
+      • Кръг след отказ: до 45 сек НЕ е нарушение</p>
+    </div>
+    <div class="card">
+      <h3>🎽 Dress — Key Requirements</h3>
+      <p><strong>Каскет</strong>: ЗАДЪЛЖИТЕЛЕН по всяко време при яздене<br>
+      <strong>При инспекция</strong>: ботуши, бели/светли бричове, ризи с бял яка, бяла вратовръзка<br>
+      <strong>При състезание</strong>: + жакет (всякакъв цвят, с видими копчета навън)<br>
+      <strong>Електронни устройства</strong>: ЗАБРАНЕНИ в warm-up (Warning) и Competition Arena (Елиминация)</p>
+    </div>
+    <div class="card">
+      <h3>📐 Combination Obstacles</h3>
+      <p><strong>Разстояние между елементите</strong>: 7-12м<br>
+      <strong>Triple bar</strong>: само като 1-ви елемент<br>
+      <strong>При отказ</strong>: всички елементи отново (освен closed comb.)<br>
+      <strong>Closed combination</strong>: скачане навън по посока на маршрута<br>
+      <strong>Jump-off</strong>: мин. 1 комбинация ако оригиналният маршрут имаше такава</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📊 Nations Cup — Obstacle Dimensions by ★</h3>
+    <table class="penalty-table">
+      <tr><th>Parameter</th><th>5★</th><th>4★</th><th>3★</th><th>2★</th><th>1★</th></tr>
+      <tr><td>Number of obstacles</td><td>12</td><td>12</td><td>12</td><td>12</td><td>12</td></tr>
+      <tr><td>Min/Max height (m)</td><td>1.45/1.60</td><td>1.40/1.55</td><td>1.35/1.50</td><td>1.20/1.45</td><td>1.10/1.40</td></tr>
+      <tr><td>Max spread (m)</td><td>2.00</td><td>1.80</td><td>1.70</td><td>1.60</td><td>1.45</td></tr>
+      <tr><td>Triple bar max (m)</td><td>2.20</td><td>2.10</td><td>2.00</td><td>1.90</td><td>1.70</td></tr>
+      <tr><td>Water Jump min/max (m)</td><td>3.80/4.00</td><td>3.70/3.90</td><td>3.50/3.70</td><td>3.20/3.50</td><td>2.70/3.50</td></tr>
+      <tr><td>Speed outdoor (m/min)</td><td>400</td><td>400</td><td>375</td><td>375</td><td>350</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ====== SCENARIOS PANEL ====== -->
+<div class="panel" id="panel-scenarios">
+  <h1 class="section-title">🎯 Practical Scenarios</h1>
+  <p class="section-subtitle">Real competition situations — test your understanding of the rules.</p>
+  <div id="scenariosContainer"></div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ===== DATA =====
+const chaptersData = [
+  {
+    num: "I", title: "Introduction (Art. 200-201)",
+    articles: [
+      { art: "200", title: "General Provisions", detail: "Jumping = тест за свобода, сила, умение и скорост на коня. Победител: най-малко наказания + най-бързо време/най-много точки. Пет нива на събития: CSI/CSIO от 1★ до 5★.", keys: ["CSI vs CSIO", "1★-5★", "Разнообразие"] },
+      { art: "201", title: "Effective Date", detail: "В сила от 1 януари 2026. ПРЕХОДНИ РАЗПОРЕДБИ: Правилата за екипировка (tack) ще бъдат в отделен документ от 1 ян. 2027. Анекс VIII остава в сила до тогава.", keys: ["1 ян 2026", "Tack → 2027"] }
+    ]
+  },
+  {
+    num: "II", title: "Athletes & Horses (Art. 202-207)",
+    articles: [
+      { art: "202", title: "Age of Horses", detail: "Северно полукълбо: рожден ден 1 ян. Южно: 1 авг. Южно в Северно → -1 год категория. Минимални възрасти: Олимпийски=9, Конт.=8, CSI3-5★=7, CSI1-2★=6.", keys: ["9/8/7/6 правило", "Полукълба"] },
+      { art: "203", title: "Number of Horses", detail: "Макс. 4 коня на ездач. Grand Prix: 1 кон (2 при ≤50% стартери за CSI1-3★). Puissance/Derby/Six Bar: +1 допълнителен. Tours: 4 на категория, 9 за CSIYH.", keys: ["Макс 4", "GP=1 кон"] },
+      { art: "205", title: "Athlete Age Requirements", detail: "Преди 18г.: забрана за GP на CSI3-5★, Nations Cup, World Cup, Puissance, Derby. От 12г.: до 1.30м. От 14г.: до 1.40м в CSI2-5★. От 16г.: всички състезания.", keys: ["12/14/16/18 правило"] },
+      { art: "206-207", title: "Tack, Equipment & Dress", detail: "Каскет: ВИНАГИ при яздене. Незастегнат ремък + скок = ЕЛИМ. Електроника: в Warm-up = Warning, в Competition = ЕЛИМ. Облекло: бели бричове, бял яка, жакет.", keys: ["Каскет = задължителен", "Телефон = забранен"] }
+    ]
+  },
+  {
+    num: "III", title: "Officials (Art. 208-215)",
+    articles: [
+      { art: "209", title: "Ground Jury", detail: "Мин. 3 съдии в кабината. Ниво 1-4 (4=най-високо). Олимпийски/Световно: Президент L4 + 4 члена. CSI5★: Президент + FJ + 2 члена. CSI1★: Президент + 3 члена (нац. съдии допустими).", keys: ["Мин. 3 в кабината", "L1-L4 система"] },
+      { art: "211", title: "Course Designer", detail: "Олимпийски: мин. L4 (FEI назначава). CSI3-5★: мин. L3. CSI1-2★: мин. L2. CSI Cat.B: мин. L1. Само CD за GP/най-високо PM може да е официален CD в разписанието.", keys: ["L4/L3/L2/L1"] },
+      { art: "215", title: "Video Assistance", detail: "Официален видеозапис трябва да бъде представен до 30 мин. след резултатите. Само на усмотрение на президента на журито. Трябва неоспоримо доказателство. НИКОГА не може да се използва видео за определяне на време.", keys: ["30 мин срок", "Неоспоримо"] }
+    ]
+  },
+  {
+    num: "IV", title: "Scoring & Formats (Art. 216-231)",
+    articles: [
+      { art: "217", title: "Table A and Table C", detail: "TABLE A: грешки в точки (4 за съборена, 1/сек за превишено време). TABLE C: грешки в секунди добавени към времето (4 сек outdoor, 3 сек indoor). В Table C: 1-ви отказ = 0 наказание, но отказ + съборена = 6 сек.", keys: ["Table A = точки", "Table C = секунди"] },
+      { art: "218", title: "Jump-Off", detail: "Макс. 1 jump-off на състезание (с изключения). Мин. 6 пречки. Мин. 1 комбинация (ако е имало в маршрута). Макс. 2 допълнителни пречки. Разстоянията в комбинации НИКОГА не се променят. Същия кон.", keys: ["Мин. 6 пречки", "Никога ≠ разстояние"] },
+      { art: "219", title: "Grand Prix", detail: "Формати: 1 кръг + JO / 2 кръга + JO / 2 кръга (2-ри против часовник). При CSIO: 1 кръг АС + JO / 2 кръга без JO / 2 кръга + JO. Термин Grand Prix = само веднъж на категория.", keys: ["GP = 1x на категория"] },
+      { art: "222", title: "Two-Phase Competition", detail: "НОРМАЛНА: фаза 1 (7-9 пр.) → само чисти продължават → фаза 2 (4-6 пр.). СПЕЦИАЛНА: всички продължават, фаза 1 (5-7) + фаза 2, общо 11-13 пречки.", keys: ["Нормална vs Специална"] },
+      { art: "226", title: "Nations Cup", detail: "Отбор от 4 (мин. 3). 2 кръга, същия маршрут, същия ден. Table A, двата кръга Against the Clock. Класиране: 3-те най-добри. Мин. 3 нации. 6-10 отбора за 2-ри кръг. Jump-off: 1 ездач на отбор.", keys: ["4 ездачи", "3 най-добри", "2 кръга"] },
+      { art: "230", title: "Power & Skill", detail: "PUISSANCE: 4-6 пречки, стена до 1.80м, последователни jump-off (макс. 4). SIX BAR: 6 вертикални на ~11м разстояние, повдигане при JO. Време НИКОГА не решава.", keys: ["Puissance", "Six Bar", "Без време"] }
+    ]
+  },
+  {
+    num: "V", title: "Obstacles (Art. 232-240)",
+    articles: [
+      { art: "232-234", title: "General & Verticals", detail: "Горната 1/4 от пречката = knockable елементи. Чашки: дълб. 18-20мм. Вертикална = само височина, без ширина. Макс 1.70м (outdoor), 1.65м (indoor).", keys: ["18-20мм чашки", "1.70/1.65 макс"] },
+      { art: "235-236", title: "Spreads & Water Jump", detail: "Spread: задължителни safety cups (18мм за заден горен прът). Воден скок: мин. 2.00м, макс. 4.00м вкл. takeoff (40-50см). Пластинка с пластилин. Грешка = допир с копито/подкова до пластинката ИЛИ допир до водата.", keys: ["Safety cups", "Пластилин", "Liverpool ≤2м"] },
+      { art: "237-238", title: "Combinations", detail: "Разстояние: 7-12м. Triple bar: само 1-ви елемент. При отказ → всички елементи наново (освен closed). CLOSED комб.: скачане навън. PARTIALLY CLOSED: closed част → навън, open → всичко наново.", keys: ["7-12м", "Closed vs Open"] }
+    ]
+  },
+  {
+    num: "VI", title: "Arenas (Art. 241-243)",
+    articles: [
+      { art: "241", title: "Competition Arena", detail: "Indoor: мин. 1200м² (25м ширина). Outdoor: мин. 4000м² (50м). Маршрут: дължина ≤ пречки×60 м. Старт/финиш: 6-15м от пречка. Флагове: Червен ДЯСНО, Бял ЛЯВО.", keys: ["1200/4000м²", "Червен=Дясно"] },
+      { art: "242", title: "Warm-Up Arena", detail: "Мин. 1 вертикална + 1 spread. Височина в WU: ≤1.40м → макс. +10 см над максимума на състезанието. >1.40м → макс. 1.65м височина, 1.80м ширина. Комбинации ЗАБРАНЕНИ (освен Six Bar). Ground pole: до 1.00м от пречка.", keys: ["Без комбинации", "+10 см правило"] },
+      { art: "243", title: "Training Arena", detail: "Placing poles: не по-близо от 2.50м. Bounce/in-out: макс. 3 вертикални ≤1.00м, разст. 2.50-3.00м. Гимнастика: височина ≤1.30м. Комбинации разрешени при достатъчно място.", keys: ["Placing poles 2.50м", "Bounce ≤1.00м"] }
+    ]
+  },
+  {
+    num: "VII", title: "Penalties During Round (Art. 244-250)",
+    articles: [
+      { art: "245", title: "Obstacle knocked down", detail: "Когато горна част падне или единият край не лежи на опора. Ако 2+ части на вертикална → само горната се наказва. Spread с няколко равнини → 1 грешка. Последна пречка: наказва се и ако падне СЛЕД финиша (до излизане/камбана).", keys: ["1 грешка за spread", "Последна пречка"] },
+      { art: "246", title: "Disobedience", detail: "ОТКАЗ (Refusal): спиране пред пречка. БЯГСТВО (Run-out): избягване встрани. СЪПРОТИВА (Resistance): отказ да продължи. КРЪГ (Circling): около пречка. Часовникът НЕ спира при отказ/бягство (освен ако камбаната звъни за възстановяване).", keys: ["Refusal/Run-out/Resistance/Circle"] },
+      { art: "248", title: "Fall", detail: "Ездач: отделяне от коня + допир до земя/опора. Кон: рамо + задница докоснат земята. При падане в арената преди старта: 'did not start'. По време на кръг: ЕЛИМ. След финиша: НЕ елим (но не може immediate JO).", keys: ["Преди=DNS", "По време=ЕЛИМ", "След=без ЕЛИМ"] }
+    ]
+  },
+  {
+    num: "VIII", title: "Time & Speed (Art. 251-258)",
+    articles: [
+      { art: "251-253", title: "Time & Limits", detail: "Начало: при пресичане на старт ИЛИ изтичане на 45-сек обр. броене. Край: при пресичане на финиш. Допустимо време = дължина/скорост. Макс. лимит = 2× допустимо.", keys: ["45 сек обр. броене", "Макс = 2× допустимо"] },
+      { art: "256", title: "6-Second Correction", detail: "При неподчинение + съборена → камбана → стоп → възстановяване → камбана → +6 сек. Часовникът тръгва когато конят напусне земята при пречката (или при 1-ви елемент ако в комбинация).", keys: ["Неподчинение + съборена = 6 сек"] }
+    ]
+  },
+  {
+    num: "IX", title: "Fines, Warnings, Eliminations (Art. 259-266)",
+    articles: [
+      { art: "259-260", title: "JRW & Yellow Cards", detail: "Jumping Recorded Warning: кръв от tack/ездач. 2× JRW в 12 месеца → CHF 1000 + 1 месец суспенсия. Yellow Warning Card: по GRs Art 164.3.", keys: ["JRW", "2×JRW = суспенсия"] },
+      { art: "263", title: "Elimination", detail: "25+ причини за елиминация. Ключови: падане, 2-ро неподчинение, >45 сек, грешен маршрут, неразрешена помощ, скачане без камбана. След елим: 1 скок разрешен (освен при падане).", keys: ["25+ причини", "1 скок след елим"] },
+      { art: "265-266", title: "Abuse & Boot Control", detail: "Злоупотреба с коне → дисквалификация + глоби + суспенсия. Boot & Bandage контрол: макс 500г на крак. Обувки за задни крака: специфични правила за размер и закопчалки.", keys: ["Max 500g per leg"] }
+    ]
+  },
+  {
+    num: "X-XI", title: "Placing & Organisation (Art. 267-279)",
+    articles: [
+      { art: "267-268", title: "Placing & Prizes", detail: "Разпределение на награден фонд: топ 13 класирани задължително. FEI значки за чест: за постижения в спорта.", keys: ["Топ 13 задължително"] },
+      { art: "272-276", title: "Entries & Veterinary Control", detail: "Ветеринарен преглед + паспортен контрол задължителни. Допинг контрол по VRs. Стартов ред: жребий или обратно на класирането.", keys: ["Вет. преглед", "Стартов ред = жребий"] }
+    ]
+  },
+  {
+    num: "XII-XIII", title: "Championships (Art. 280-301)",
+    articles: [
+      { art: "280-289", title: "World & Continental Championships for Seniors", detail: "3 състезания: 1-во (отборно+инд.), 2-ро (отборен финал), 3-то (инд. финал). Квалификация: Certificate of Capability задължителен. Олимпийски: мин. 9г. кон, L4 длъжностни лица.", keys: ["3 състезания", "CoC задължителен"] },
+      { art: "290-301", title: "Championships for Youth/Veterans", detail: "Young Riders: макс 1.50м. Juniors: макс 1.40м. Ponies: макс 1.35м (3-то състезание). Children: макс 1.30м. Veterans: макс 1.30м (3-то състез.). Отбори от 4-5 ездачи, 3-те най-добри се броят.", keys: ["YR=1.50", "J=1.40", "P=1.35", "Ch=1.30"] }
+    ]
+  },
+  {
+    num: "XIV", title: "Youth, Veterans, Amateurs (Art. 302-307)",
+    articles: [
+      { art: "302-305", title: "Specific Rules", detail: "U25/YR/J: Cat A (с PM, като CSI2★) и Cat B (без PM, като CSI1★). Ponies: макс 1.30м, 10-12 пречки, специални правила за битове. Children: само коне (не понита!), макс 1.30м, Table C забранен.", keys: ["Cat A vs Cat B", "Children = коне"] },
+      { art: "307", title: "Amateurs", detail: "Макс. 1.40м пречки. Entry fee макс €1500. Не може да печели от яздене/уроци/реклама. Ако скочи ≥1.50м → губи аматьорски статус за годината.", keys: ["Макс 1.40м", "€1500 entry fee"] }
+    ]
+  }
+];
+
+const quizBank = [
+  { q: "Колко наказателни точки се налагат за съборена пречка по Table A?", opts: ["2 точки", "4 точки", "6 точки", "8 точки"], correct: 1, expl: "Чл. 217.1.1 — Obstacle knocked down = 4 Penalties по Table A." },
+  { q: "Каква е минималната възраст на кон за Олимпийски игри?", opts: ["7 години", "8 години", "9 години", "10 години"], correct: 2, expl: "Чл. 202.2 — Олимпийски игри, Световно първенство и WC Финал изискват минимум 9-годишен кон." },
+  { q: "Какво се случва при второ неподчинение в кръг?", opts: ["4 Penalties", "8 наказателни точки", "Елиминация", "Предупреждение"], correct: 2, expl: "Чл. 217.1.1 / 263.4 — Second Disobedience = елиминация и по Table A и по Table C." },
+  { q: "Колко секунди се добавят при неподчинение + съборена пречка?", opts: ["3 секунди", "4 секунди", "6 секунди", "10 секунди"], correct: 2, expl: "Чл. 256 — При неподчинение + събаряне на пречка: 6 секунди корекция на времето." },
+  { q: "Кой цвят флаг трябва да е вдясно на ездача?", opts: ["Бял", "Червен", "Зелен", "Жълт"], correct: 1, expl: "Чл. 241.5.3 — Червен флаг вдясно, бял флаг вляво." },
+  { q: "Колко пречки МИНИМУМ трябва да има в jump-off?", opts: ["4", "5", "6", "8"], correct: 2, expl: "Чл. 218.2.3 — Минимум 6 пречки в jump-off (комбинациите се броят за 1)." },
+  { q: "Каква е максималната дълбочина на чашката за горния заден прът на spread пречка?", opts: ["15 мм", "18 мм", "20 мм", "25 мм"], correct: 1, expl: "Чл. 235.2 — Макс. 18 мм за горния заден прът (safety cups); 20 мм за по-ниските." },
+  { q: "Какво се случва при падане на ездач ПРЕДИ пресичане на старта?", opts: ["Елиминация", "4 Penalties", "'Did not start'", "Предупреждение"], correct: 2, expl: "Чл. 248.2.2.1 — Fall преди старта = 'did not start', НЕ елиминация." },
+  { q: "Колко е обратното броене след камбаната за старт?", opts: ["30 секунди", "45 секунди", "60 секунди", "90 секунди"], correct: 1, expl: "Чл. 241.6.1.2 — 45 секунди обратно броене за пресичане на старт линията." },
+  { q: "Колко коня може да язди ездач в Grand Prix на CSI3★?", opts: ["1", "2", "3", "4"], correct: 0, expl: "Чл. 203.2.1 — В Grand Prix: само 1 кон на ездач (2 само при ≤50% стартери)." },
+  { q: "Какъв е максималният размер на indoor арена?", opts: ["Мин. 800 м²", "Мин. 1200 м²", "Мин. 2000 м²", "Мин. 4000 м²"], correct: 1, expl: "Чл. 241.1.2 — Indoor: мин. 1200 м² с мин. 25м ширина." },
+  { q: "При Table C outdoor, колко секунди за съборена пречка?", opts: ["3 секунди", "4 секунди", "6 секунди", "0 секунди"], correct: 1, expl: "Чл. 217.2.1 — Table C outdoor: 4 секунди (indoor: 3 секунди)." },
+  { q: "Минимално разстояние между елементите на комбинирана пречка?", opts: ["5 метра", "6 метра", "7 метра", "8 метра"], correct: 2, expl: "Чл. 237.1 — Разстояние в комбинация: мин. 7м, макс. 12м." },
+  { q: "Може ли ездач да използва телефон в Competition Arena?", opts: ["Да, с разрешение", "Да, само с 1 слушалка", "Не, елиминация", "Не, но само глоба"], correct: 2, expl: "Чл. 207.3.2 — В Competition Arena: ЗАБРАНЕНИ телефони/електроника → Елиминация." },
+  { q: "Колко ездачи участват в Nations Cup jump-off за 1-во място?", opts: ["Всички отборни", "3 от отбора", "2 от отбора", "1 от отбора"], correct: 3, expl: "Чл. 226.9.2.1 — В jump-off за 1-во: 1 ездач на отбор (Chef d'Equipe решава кой)." },
+  { q: "Максимална височина на пречки за Indoor (без Puissance/Six Bar)?", opts: ["1.55 м", "1.60 м", "1.65 м", "1.70 м"], correct: 2, expl: "Чл. 233.1 — Макс. 1.65м indoor (1.70м outdoor), с изключение на Puissance/Six Bar." },
+  { q: "При първо неподчинение по Table C, какво е наказанието?", opts: ["0 (без наказание)", "3 секунди", "4 секунди", "Елиминация"], correct: 0, expl: "Чл. 217.2.1 — Table C: първо неподчинение = НУЛА наказание (но ако + съборена = 6 сек)." },
+  { q: "Каква е максималната тежест на ботуши на крак на коня?", opts: ["300 грама", "400 грама", "500 грама", "750 грама"], correct: 2, expl: "Анекс VIII, Чл. 2.2(b) — Макс. 500г на крак (включително когато е мокро)." },
+  { q: "Колко допълнителни пречки могат да бъдат добавени в jump-off?", opts: ["0", "1", "2", "3"], correct: 2, expl: "Чл. 218.2.7 — Макс. 2 допълнителни пречки в jump-off." },
+  { q: "Могат ли разстоянията в комбинация да се променят при jump-off?", opts: ["Да, по усмотрение", "Да, с мин. 1м", "Не, никога", "Само за Puissance"], correct: 2, expl: "Чл. 218.2.6 — Разстоянията в комбинация НИКОГА не се променят при jump-off." },
+  { q: "Какъв е минималният брой нации за валиден Nations Cup?", opts: ["2", "3", "4", "5"], correct: 1, expl: "Чл. 226.1.2 — Минимум 3 нации за признат Nations Cup." },
+  { q: "Максимална дължина на камшик в Competition Arena?", opts: ["50 см", "65 см", "75 см", "100 см"], correct: 2, expl: "Анекс VIII, Чл. 1.2 — Макс. 75 см при скачане на пречки в Competition/Warm-Up/Training арени." },
+  { q: "Какво се прави при непреодолимо равенство след 4-ти jump-off при Puissance?", opts: ["5-ти jump-off", "Жребий", "Равно 1-во", "Журито решава"], correct: 2, expl: "Чл. 230.1.3 — След 4-ти jump-off журито ТРЯБВА да спре и ездачите са равни." },
+  { q: "От каква възраст ездачът може да участва като Junior?", opts: ["12 години", "14 години", "16 години", "18 години"], correct: 1, expl: "Чл. 205.3.3 — Junior: от началото на годината на 14-ия рожден ден до края на 18-ата." },
+  { q: "Максимална височина на пречки при Children's Events?", opts: ["1.20 м", "1.25 м", "1.30 м", "1.35 м"], correct: 2, expl: "Чл. 306.4 — Children: макс. 1.30м." },
+];
+
+const flashcardsData = [
+  { q: "Table A: Obstacle knocked down = ?", a: "4 Penalties (Чл. 217.1.1)" },
+  { q: "Table A: Exceeding time allowed = ?", a: "1 наказателна точка за всяка ЗАПОЧНАТА секунда (Чл. 217.1.1)" },
+  { q: "Table C outdoor: Obstacle knocked down = ?", a: "4 секунди (3 сек за indoor, 3 сек за 2-ра фаза/JO) (Чл. 217.2.1)" },
+  { q: "Table C: First Disobedience (без съборена) = ?", a: "НУЛА наказание! (Чл. 217.2.1)" },
+  { q: "Неподчинение + съборена пречка = ?", a: "6 секунди времева корекция (камбана → стоп → възстановяване → камбана → +6 сек) (Чл. 256)" },
+  { q: "Second Disobedience = ?", a: "ELIMINATION (и Table A и Table C) (Чл. 217)" },
+  { q: "Fall по време на кръг = ?", a: "ELIMINATION (Чл. 263.4.26)" },
+  { q: "Fall ПРЕДИ пресичане на стартовата линия = ?", a: "'Did not start' — НЕ елиминация, но НЕ може да стартира в този кръг (Чл. 248.2.2.1)" },
+  { q: "Fall СЛЕД финалната линия = ?", a: "НЕ елиминация, но: ако има immediate JO → елиминация от JO (Чл. 248.2.2.3)" },
+  { q: "Мин. възраст на кон за Олимпийски игри?", a: "9 години (Чл. 202.2)" },
+  { q: "Мин. възраст на кон за CSI3★-5★?", a: "7 години (Чл. 202.2)" },
+  { q: "Макс. коне на ездач в Grand Prix?", a: "1 кон (2 само при ≤50% стартери за CSI1-3★) (Чл. 203.2)" },
+  { q: "Флаг вдясно на ездача?", a: "ЧЕРВЕН (🔴). Бял вляво (⚪). Мнемоника: 'Червен = десен' (Чл. 241.5.3)" },
+  { q: "Обратно броене за старт?", a: "45 секунди от камбаната (Чл. 241.6.1.2)" },
+  { q: "Макс. височина outdoor (без Puissance/Six Bar)?", a: "1.70 м (indoor: 1.65 м) (Чл. 233.1)" },
+  { q: "Макс. ширина на spread пречка?", a: "2.00 м (triple bar: 2.20 м) (Чл. 233.1)" },
+  { q: "Воден скок макс. ширина?", a: "4.00 м (включва takeoff елемент) (Чл. 233.1)" },
+  { q: "Мин. брой пречки в Jump-Off?", a: "6 (комбинациите се броят за 1) (Чл. 218.2.3)" },
+  { q: "Разстояния в комбинация при JO?", a: "НИКОГА не се променят! (Чл. 218.2.6)" },
+  { q: "Nations Cup: колко ездачи в отбор?", a: "4 (мин. 3 допустимо) (Чл. 226.4.1)" },
+  { q: "Nations Cup: кой резултат се брои?", a: "3-те най-добри ездачи от отбора (Чл. 226.9.1)" },
+  { q: "Resistance 45 сек. = ?", a: "ELIMINATION (Чл. 246.4.3)" },
+  { q: "Макс. тежест на ботуши на крак?", a: "500 грама (вкл. мокри) (Анекс VIII, 2.2(b))" },
+  { q: "Макс. дължина на камшик?", a: "75 см (за прескачане на пречки) (Анекс VIII, 1.2)" },
+  { q: "Indoor арена мин. размер?", a: "1200 м², мин. 25 м ширина (Чл. 241.1.2)" },
+  { q: "Outdoor арена мин. размер?", a: "4000 м², мин. 50 м ширина (Чл. 241.1.2)" },
+  { q: "Видео доказателство — краен срок?", a: "30 минути след официалните резултати (Чл. 215.2)" },
+  { q: "JRW: 2× в 12 месеца = ?", a: "CHF 1'000 глоба + 1 месец суспенсия (Чл. 259.1)" },
+  { q: "Комбинация: разстояние между елементи?", a: "Мин. 7 м, макс. 12 м (Чл. 237.1)" },
+  { q: "Children максимална височина?", a: "1.30 м (Чл. 306.4)" },
+];
+
+const scenariosData = [
+  { scenario: "Ездач приближава пречка #5, конят спира рязко (отказ), но НЕ съборва нищо. Ездачът се подготвя и скача пречката от място.", question: "Какво е наказанието?", answer: "Скок от място без движение назад НЕ е отказ (Чл. 246.2.2). Ако конят стои на място и веднага скача → БЕЗ наказание. Но ако спирането е продължително ИЛИ конят направи крачка назад → Refusal = 4 точки (Table A)." },
+  { scenario: "В Nations Cup, 3-мата ездачи на отбор А завършват 1-ви кръг. 4-ият ездач е готов, но отборът не може да подобри класирането.", question: "Може ли 4-ият да бъде оттеглен?", answer: "ДА (Чл. 226.4.2). Ако отбор от 4 не може да подобри класирането си след 3-ия ездач, 4-ият МОЖЕ да бъде оттеглен." },
+  { scenario: "Ездач скача всички пречки чисто, но при финалната линия каскетът му пада. Той не спира да го вземе.", question: "Какво се случва?", answer: "Ако ремъкът се разкопчае по време на кръга, ездачът трябва да спре и закопчае веднага. Ако скочи пречка с незакопчан ремък → ELIMINATION (Чл. 207.1.2), ОСВЕН ако е било опасно да спре (напр. в средата на комбинация)." },
+  { scenario: "При Table C outdoor, ездач прави 1-ви отказ на пречка #7, без да я съборі. След втори опит скача чисто.", question: "Какво е наказанието?", answer: "НУЛА допълнително наказание! По Table C, първо неподчинение БЕЗ съборена = 0 наказание (Чл. 217.2.1). Само загубеното време при отказа се отразява на крайния резултат." },
+  { scenario: "Конят на ездач X пада (рамо + задница на земята) по време на 2-ри кръг. Ездачът се качва обратно и иска да продължи.", question: "Може ли да продължи?", answer: "НЕ. Fall на кон = ELIMINATION (Чл. 263.4.26). Конят трябва да бъде прегледан от ветеринар преди следващо състезание (Чл. 248.2.1.2)." },
+  { scenario: "В jump-off, Course Designer иска да промени разстоянието в двойна комбинация от 8м на 7.5м.", question: "Разрешено ли е?", answer: "НЕ, ЗАБРАНЕНО! Разстоянията между елементите на комбинация НИКОГА не се променят в jump-off (Чл. 218.2.6). Това е абсолютно правило." },
+  { scenario: "Ездач получава SMS в Warm-Up Arena по време на състезание. Стюардът го забелязва.", question: "Какво следва?", answer: "Предупреждение (Warning) по Чл. 207.3.1 / 261. Ако беше в Competition Arena → ELIMINATION (Чл. 207.3.2 / 263.4)." },
+  { scenario: "5-годишен кон от южното полукълбо иска да участва в състезание за 5-годишни коне в Европа.", question: "Разрешено ли е?", answer: "Коне от южното полукълбо в северното → категория с 1 година по-малки (Чл. 202.1.3). 5-годишен южен = 4-годишна категория в северното, но мин. възраст за състезание е 5 год., така че може да участва в категория 5-годишни ако CSIYH1-2★ (мин. 6 год. по чл. 202.2 за CSI1-2★)." },
+];
+
+// ===== RENDER CHAPTERS =====
+function renderChapters() {
+  const c = document.getElementById('chaptersContainer');
+  c.innerHTML = chaptersData.map((ch, i) => `
+    <div class="chapter-header" onclick="toggleChapter(${i})">
+      <h2><span class="chapter-tag">Chapter ${ch.num}</span> ${ch.title}</h2>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="badge">${ch.articles.length} articles</span>
+        <span class="arrow">▼</span>
+      </div>
+    </div>
+    <div class="chapter-body" id="chBody${i}">
+      ${ch.articles.map(a => `
+        <div class="article">
+          <h4>Art. ${a.art} — ${a.title}</h4>
+          <div class="detail">${a.detail}</div>
+          <div style="margin-top:8px;">${a.keys.map(k => `<span class="key-point">${k}</span>`).join('')}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+function toggleChapter(i) {
+  const body = document.getElementById('chBody' + i);
+  const header = body.previousElementSibling;
+  body.classList.toggle('open');
+  header.classList.toggle('open');
+}
+
+// ===== QUIZ =====
+let quizCorrect = 0, quizTotal = 0;
+function generateQuiz() {
+  quizCorrect = 0; quizTotal = 0;
+  const shuffled = [...quizBank].sort(() => Math.random() - 0.5).slice(0, 10);
+  const c = document.getElementById('quizContainer');
+  c.innerHTML = shuffled.map((q, i) => `
+    <div class="quiz-card" id="qCard${i}">
+      <div class="q-number">Question ${i+1} of 10</div>
+      <div class="q-text">${q.q}</div>
+      ${q.opts.map((o, j) => `<button class="quiz-option" onclick="answerQuiz(${i},${j},${q.correct})">${o}</button>`).join('')}
+      <div class="quiz-explanation" id="qExpl${i}">${q.expl}</div>
+    </div>
+  `).join('');
+  document.getElementById('quizProgress').style.width = '0%';
+  document.getElementById('quizScore').textContent = '';
+}
+function answerQuiz(qi, selected, correct) {
+  const card = document.getElementById('qCard' + qi);
+  const btns = card.querySelectorAll('.quiz-option');
+  if (btns[0].classList.contains('disabled')) return;
+  quizTotal++;
+  btns.forEach((b, j) => {
+    b.classList.add('disabled');
+    if (j === correct) b.classList.add('correct');
+    if (j === selected && j !== correct) b.classList.add('wrong');
+  });
+  if (selected === correct) quizCorrect++;
+  document.getElementById('qExpl' + qi).style.display = 'block';
+  document.getElementById('quizProgress').style.width = (quizTotal * 10) + '%';
+  document.getElementById('quizScore').textContent = `Score: ${quizCorrect}/${quizTotal}`;
+}
+
+// ===== FLASHCARDS =====
+let fcIndex = 0, fcDeck = [];
+function initFlashcards() {
+  fcDeck = [...flashcardsData].sort(() => Math.random() - 0.5);
+  fcIndex = 0;
+  showFlashcard();
+}
+function showFlashcard() {
+  if (fcIndex >= fcDeck.length) { fcIndex = 0; fcDeck.sort(() => Math.random() - 0.5); }
+  const fc = fcDeck[fcIndex];
+  document.getElementById('fcQuestion').textContent = fc.q;
+  document.getElementById('fcAnswer').textContent = fc.a;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fcCounter').textContent = `Card ${fcIndex + 1} / ${fcDeck.length}`;
+  document.getElementById('fcProgress').style.width = ((fcIndex / fcDeck.length) * 100) + '%';
+}
+function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+function rateCard(rating) {
+  if (rating === 0) { fcDeck.push(fcDeck[fcIndex]); }
+  fcIndex++;
+  showFlashcard();
+}
+function resetFlashcards() { initFlashcards(); }
+
+// ===== SCENARIOS =====
+function renderScenarios() {
+  const c = document.getElementById('scenariosContainer');
+  c.innerHTML = scenariosData.map((s, i) => `
+    <div class="card">
+      <h3>🎯 Scenario ${i + 1}</h3>
+      <p style="margin-bottom:12px;padding:14px;background:var(--bg3);border-radius:8px;">${s.scenario}</p>
+      <p style="font-weight:700;color:var(--blue);margin-bottom:10px;">${s.question}</p>
+      <details>
+        <summary style="cursor:pointer;color:var(--gold);font-weight:600;">Show answer ▼</summary>
+        <div style="margin-top:10px;padding:14px;background:rgba(52,211,153,0.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;">
+          ${s.answer}
+        </div>
+      </details>
+    </div>
+  `).join('');
+}
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ===== SEARCH =====
+document.getElementById('searchInput').addEventListener('input', function() {
+  const query = this.value.toLowerCase().trim();
+  if (query.length < 2) return;
+  // Switch to chapters view and open all
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-panel="chapters"]').classList.add('active');
+  document.getElementById('panel-chapters').classList.add('active');
+  document.querySelectorAll('.chapter-body').forEach(b => b.classList.add('open'));
+  document.querySelectorAll('.chapter-header').forEach(h => h.classList.add('open'));
+  // Highlight matches
+  document.querySelectorAll('.article').forEach(a => {
+    const text = a.textContent.toLowerCase();
+    if (text.includes(query)) {
+      a.style.display = 'block';
+      a.style.borderLeftColor = 'var(--gold)';
+    } else {
+      a.style.display = 'none';
+    }
+  });
+});
+
+// ===== INIT =====
+renderChapters();
+generateQuiz();
+initFlashcards();
+renderScenarios();
+</script>
+</body>
+</html>
